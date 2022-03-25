@@ -1,2 +1,7 @@
-# cloud-computing-with-go-template
-This template can be used as a starter point for any project of the course 'Introduction to Cloud Computing'.
+# url-shortener
+
+Welcome to the 'Introduction to Cloud Computing' lab exercise of bejdenn.
+
+For this project, bejdenn implements a url-shortener using the [Go][go] programming language.
+
+[go]: https://go.dev/
