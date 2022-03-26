@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
-func HandleURLProcessing(rw http.ResponseWriter, r *http.Response) {
+func HandleURLProcessing(rw http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(rw, "Hello, world!")
+	return
 }

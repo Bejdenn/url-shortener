@@ -4,11 +4,14 @@ on:
   push:
     paths:
       - "services/**"
-    branches: [staging]
+    branches: [main]
 
 jobs:
   deploy:
+    runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+
       - id: "auth"
         uses: "google-github-actions/auth@v0"
         with:
@@ -17,10 +20,10 @@ jobs:
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v0"
 
-      - name: "Deploy to Cloud"
+      # every sub-directory of the 'services' directory stands for a single Cloud Function.
+      # this step iterates over every available directory and deploys it. The name of the Cloud Function
+      # will be the same as its folder name.
+      - name: "Deploy Cloud Function"
         working-directory: ./services
         run: |
-          for d in */; do \
-              cd $d \
-              sh ./deploy-function.sh \
-          done
+          for d in */; do cd $d; gcloud functions deploy ${d%?} --entry-point "Handle" --runtime go116 --trigger-http; done
