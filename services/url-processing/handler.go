@@ -7,4 +7,5 @@ import (
 
 func HandleURLProcessing(rw http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(rw, "Hello, world!")
+	return
 }
