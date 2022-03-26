@@ -8,7 +8,8 @@ on:
 
 jobs:
   deploy:
-    steps:
+      runs-on: ubuntu-latest
+      steps:
       - id: "auth"
         uses: "google-github-actions/auth@v0"
         with:
