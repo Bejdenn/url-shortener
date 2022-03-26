@@ -1,7 +1,9 @@
-name: Go Deploy Dev
+name: services:build_and_test
 
 on:
   push:
+    paths:
+      - "services/**"
     branches: [main]
   pull_request:
     branches: [main]
@@ -18,10 +20,9 @@ jobs:
           go-version: 1.18
 
       - name: Build
+        working-directory: ./services
         run: go build -v ./...
 
       - name: Test
+        working-directory: ./services
         run: go test -v ./...
-
-      - name: Deploy to Cloud
-        run: echo "TODO"
