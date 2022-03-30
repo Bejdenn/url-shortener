@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"regexp"
 
-	"github.com/lithammer/shortuuid/v4"
+	"github.com/google/uuid"
 )
 
 type InvalidURLError struct {
@@ -81,5 +81,5 @@ func isValidURL(address string) (bool, error) {
 }
 
 func GenerateID(length int) string {
-	return shortuuid.New()[0:length]
+	return uuid.New().String()[0:length]
 }
