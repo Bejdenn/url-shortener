@@ -1,9 +1,9 @@
-name: services:deploy
+name: functions:deploy
 
 on:
   push:
     paths:
-      - "services/**"
+      - "functions/**"
     branches: [main]
 
 jobs:
@@ -20,10 +20,10 @@ jobs:
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v0"
 
-      # every sub-directory of the 'services' directory stands for a single Cloud Function.
+      # every sub-directory of the 'functions' directory stands for a single Cloud Function.
       # this step iterates over every available directory and deploys it. The name of the Cloud Function
       # will be the same as its folder name.
       - name: "Deploy Cloud Function"
-        working-directory: ./services
+        working-directory: ./functions
         run: |
           for d in */; do cd $d; gcloud functions deploy ${d%?} --entry-point "Handle" --runtime go116 --trigger-http; done
