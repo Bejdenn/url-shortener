@@ -1,4 +1,4 @@
-module github.com/Bejdenn/url-shortener
+module github.com/Bejdenn/url-shortener/url-processing
 
 go 1.18
 

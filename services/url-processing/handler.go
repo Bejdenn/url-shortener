@@ -23,6 +23,11 @@ const (
 	IDLength = 8
 )
 
+// dotSeparated is a regular expression that matches anything that has the
+// same dot separation as in a IP address (e.g. 127.0.0.1). Any part between
+// two dots has to be atleast one character long.
+var dotSeparated = regexp.MustCompile("^(?:\\w+\\.)+\\w+(\\/\\w+)*$")
+
 func Handle(rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -61,10 +66,7 @@ func ShortenURL(longURL string) (string, error) {
 func isValidURL(address string) (bool, error) {
 	// try parsing once to filter out the common invalid URLs
 	if _, err := url.ParseRequestURI(address); err != nil {
-		isProtocolMissing, err := regexp.Match("^(?:\\w+\\.)+\\w+(\\/\\w+)*$", []byte(address))
-		if err != nil {
-			return false, err
-		}
+		isProtocolMissing := dotSeparated.Match([]byte(address))
 
 		// if only the protocol is missing from the address, then we append
 		// the HTTP protocol string as a fallback and retry

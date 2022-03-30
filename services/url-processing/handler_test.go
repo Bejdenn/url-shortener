@@ -37,6 +37,32 @@ func TestHandler(t *testing.T) {
 	}
 }
 
+func TestHandlerFalseHTTPMethod(t *testing.T) {
+	req := httptest.NewRequest(http.MethodDelete, "/?longUrl=http://example.com", http.NoBody)
+	rec := httptest.NewRecorder()
+
+	Handle(rec, req)
+
+	res := rec.Result()
+
+	if res.StatusCode != http.StatusMethodNotAllowed {
+		t.Errorf("expected = %d, want = %d", http.StatusMethodNotAllowed, res.StatusCode)
+	}
+}
+
+func TestHandlerNoURLToProcess(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/", http.NoBody)
+	rec := httptest.NewRecorder()
+
+	Handle(rec, req)
+
+	res := rec.Result()
+
+	if res.StatusCode != http.StatusBadRequest {
+		t.Errorf("expected = %d, want = %d", http.StatusBadRequest, res.StatusCode)
+	}
+}
+
 func TestShortenValidURLs(t *testing.T) {
 	tests := []string{
 		"https://www.example.com", "www.example.com", "google.de",
@@ -56,7 +82,7 @@ func TestShortenValidURLs(t *testing.T) {
 
 func TestShortenInvalidURLs(t *testing.T) {
 	tests := []string{
-		"example", "ftp/127.0.0.1",
+		"example", "ftp/127.0.0.1", "something?",
 	}
 
 	for _, v := range tests {
