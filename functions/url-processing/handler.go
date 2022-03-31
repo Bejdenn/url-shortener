@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"cloud.google.com/go/firestore"
 )
@@ -14,8 +13,6 @@ import (
 var Proc *URLProcessing
 
 func init() {
-	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "/Users/dennisbejze/Projects/url-shortener/service_account.json")
-
 	// Sets your Google Cloud Platform project ID.
 	projectID := "platinum-factor-345219"
 
