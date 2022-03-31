@@ -27,3 +27,6 @@ jobs:
       - name: Test code
         working-directory: ./functions
         run: find . -name go.mod -execdir sh -c 'go test -v ./...' \; ;
+        env:
+          	GOOGLE_APPLICATION_CREDENTIALS: "${{ secrets.GCP_CREDENTIALS }}"
+
