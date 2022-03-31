@@ -5,6 +5,7 @@ go 1.18
 require (
 	cloud.google.com/go/firestore v1.6.1
 	github.com/google/uuid v1.3.0
+	google.golang.org/api v0.59.0
 )
 
 require (
@@ -19,7 +20,6 @@ require (
 	golang.org/x/sys v0.0.0-20211007075335-d3039528d8ac // indirect
 	golang.org/x/text v0.3.6 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	google.golang.org/api v0.59.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20211028162531-8db9c33dc351 // indirect
 	google.golang.org/grpc v1.40.0 // indirect

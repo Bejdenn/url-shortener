@@ -2,19 +2,17 @@ package urlprocessing
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"regexp"
 	"testing"
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/api/iterator"
 )
-
-var urlRegex = regexp.MustCompile("^https://short-url\\.io\\/\\w{8}$")
 
 const testCollection = "test-urlrelations"
 
@@ -50,9 +48,34 @@ func TestHandler(t *testing.T) {
 			t.Fatalf("response contained error: %v", errors.New(string(body)))
 		}
 
-		if shortURL := string(body); len(shortURL) == 0 {
+		rel := &URLRelation{}
+		err := json.Unmarshal(body, rel)
+		if err != nil {
+			t.Fatalf("error while unmarshalling response body: %v", err)
+		}
+
+		if len(rel.ShortURL) == 0 {
 			t.Error("expected shortURL but got empty string")
 		}
+	}
+
+	size := 0
+	iter := Proc.Db.Collection(testCollection).Documents(context.Background())
+	for {
+		_, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+
+		if err != nil {
+			t.Fatalf("error while trying to get document: %v", err)
+		}
+
+		size++
+	}
+
+	if size != len(tests) {
+		t.Errorf("got %d URL, expected %d in remote database", size, len(tests))
 	}
 }
 
@@ -79,35 +102,6 @@ func TestHandlerNoURLToProcess(t *testing.T) {
 
 	if res.StatusCode != http.StatusBadRequest {
 		t.Errorf("got = %d, want = %d", res.StatusCode, http.StatusBadRequest)
-	}
-}
-
-func TestShortenValidURLs(t *testing.T) {
-	tests := []string{
-		"https://www.example.com", "www.example.com", "google.de",
-	}
-
-	for _, v := range tests {
-		rel, err := ShortenURL(v)
-		if err != nil {
-			t.Fatalf("shortening URL was not possible: %v", err)
-		}
-
-		if !urlRegex.Match([]byte(rel.ShortURL)) {
-			t.Errorf("expected a short URL with schema %s, but got %s", urlRegex.String(), rel.ShortURL)
-		}
-	}
-}
-
-func TestShortenInvalidURLs(t *testing.T) {
-	tests := []string{
-		"example", "ftp/127.0.0.1", "something?",
-	}
-
-	for _, v := range tests {
-		if _, err := ShortenURL(v); err == nil {
-			t.Errorf("expected error for long URL '%s', but there was none", v)
-		}
 	}
 }
 
