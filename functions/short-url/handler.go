@@ -1,4 +1,4 @@
-package urlprocessing
+package shorturl
 
 import (
 	"context"
