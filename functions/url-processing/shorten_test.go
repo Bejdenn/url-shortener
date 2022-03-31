@@ -1,6 +1,7 @@
 package urlprocessing
 
 import (
+	"context"
 	"regexp"
 	"testing"
 )
@@ -33,5 +34,23 @@ func TestShortenInvalidURLs(t *testing.T) {
 		if _, err := ShortenURL(tc); err == nil {
 			t.Errorf("expected error for URL '%s', but there was none", tc)
 		}
+	}
+}
+
+func TestShortURLAlreadyExists(t *testing.T) {
+	rel, err := ShortenURL("https://www.example.com")
+	if err != nil {
+		t.Fatalf("error occured while shortening URL: %v", err)
+	}
+
+	Proc.TargetCollection = testCollection
+
+	_, err = Proc.Db.Collection(testCollection).Doc(rel.Id).Set(context.Background(), rel)
+	if err != nil {
+		t.Fatalf("error occured while persisting relation: %v", err)
+	}
+
+	if exists := ShortURLExists(rel); !exists {
+		t.Errorf("ShortURLExists(%v) = %v, expected = %v", rel, exists, true)
 	}
 }

@@ -1,11 +1,14 @@
 package urlprocessing
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/url"
 	"regexp"
 
 	"github.com/google/uuid"
+	"google.golang.org/api/iterator"
 )
 
 type InvalidURLError struct {
@@ -65,4 +68,25 @@ func isValidURL(address string) (bool, error) {
 
 func GenerateID(length int) string {
 	return uuid.New().String()[0:length]
+}
+
+func ShortURLExists(rel *URLRelation) bool {
+	tries := 0
+	iter := Proc.Db.Collection(Proc.TargetCollection).Where("Id", "==", rel.Id).Documents(context.Background())
+
+	for {
+		_, err := iter.Next()
+
+		if err == iterator.Done {
+			break
+		}
+
+		if err != nil {
+			log.Default().Print(err)
+		}
+
+		tries++
+	}
+
+	return tries != 0
 }

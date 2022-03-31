@@ -51,6 +51,14 @@ func (proc *URLProcessing) Handle(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		for ShortURLExists(rel) {
+			rel, err = ShortenURL(longURL)
+			if err != nil {
+				http.Error(rw, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+
 		_, err = proc.Db.Collection(proc.TargetCollection).Doc(rel.Id).Set(context.Background(), rel)
 		if err != nil {
 			log.Default().Print(err)
