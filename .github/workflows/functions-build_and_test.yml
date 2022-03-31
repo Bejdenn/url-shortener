@@ -18,7 +18,7 @@ jobs:
           go-version: 1.18
 
       - name: Checkout code
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
 
       - name: Build code
         working-directory: ./functions
