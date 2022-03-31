@@ -19,6 +19,12 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v2
+        
+      # some tests need access to Google Cloud Resources, e.g. Firestore
+      - id: "auth"
+        uses: "google-github-actions/auth@v0"
+        with:
+          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
 
       - name: Build code
         working-directory: ./functions
@@ -27,6 +33,4 @@ jobs:
       - name: Test code
         working-directory: ./functions
         run: |
-          export GOOGLE_APPLICATION_CREDENTIALS=${{ secrets.GCP_CREDENTIALS }}
           find . -name go.mod -execdir sh -c 'go test -v ./...' \; ;
-
