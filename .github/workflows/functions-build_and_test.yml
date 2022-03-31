@@ -27,6 +27,6 @@ jobs:
       - name: Test code
         working-directory: ./functions
         run: |
-          export GOOGLE_APPLICATION_CREDENTIALS=${{ secrets.GCP_CREDENTIALS }} \
-          find . -name go.mod -execdir sh -c 'go test -v ./...' \; ; \
+          export GOOGLE_APPLICATION_CREDENTIALS=${{ secrets.GCP_CREDENTIALS }}
+          find . -name go.mod -execdir sh -c 'go test -v ./...' \; ;
 
