@@ -12,9 +12,7 @@ import (
 )
 
 const (
-	domain  = "https://us-central1-platinum-factor-345219.cloudfunctions.net"
-	route   = "/short-redirect"
-	dest404 = "https://short-url.io/"
+	dest404 = "https://www.google.de/"
 )
 
 var handler *RedirectHandler
