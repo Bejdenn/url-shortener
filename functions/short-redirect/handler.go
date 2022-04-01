@@ -12,6 +12,7 @@ import (
 
 const (
 	domain = "https://us-central1-platinum-factor-345219.cloudfunctions.net"
+	route  = "/short-redirect"
 )
 
 var Handler *RedirectHandler
@@ -35,7 +36,7 @@ func init() {
 func (proc *RedirectHandler) Handle(rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		id := extractPathParam(r.URL.Path, "/short-redirect")
+		id := extractPathParam(r.URL.Path)
 		iter := Handler.Db.Collection("urlrelations").Where("Id", "==", id).Documents(context.Background())
 
 		for {
@@ -66,8 +67,8 @@ func (proc *RedirectHandler) Handle(rw http.ResponseWriter, r *http.Request) {
 
 }
 
-func extractPathParam(address string, route string) string {
-	return strings.TrimPrefix(address, domain+"/"+route+"/")
+func extractPathParam(address string) string {
+	return strings.TrimPrefix(address, domain+route+"/")
 }
 
 func Handle(rw http.ResponseWriter, r *http.Request) {
