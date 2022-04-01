@@ -29,29 +29,37 @@ func init() {
 }
 
 func (proc *RedirectHandler) Handle(rw http.ResponseWriter, r *http.Request) {
-	id := extractPathParam(r.URL.Path, "/short-redirect")
-	iter := Handler.Db.Collection("urlrelations").Where("Id", "==", id).Documents(context.Background())
+	switch r.Method {
+	case http.MethodGet:
+		id := extractPathParam(r.URL.Path, "/short-redirect")
+		iter := Handler.Db.Collection("urlrelations").Where("Id", "==", id).Documents(context.Background())
 
-	for {
-		doc, err := iter.Next()
+		for {
+			doc, err := iter.Next()
 
-		if err == iterator.Done {
-			http.Redirect(rw, r, "https://short-url.io/", http.StatusMovedPermanently)
-			break
+			if err == iterator.Done {
+				http.Redirect(rw, r, "https://short-url.io/"+id, http.StatusMovedPermanently)
+				break
+			}
+
+			if err != nil {
+				log.Default().Print(err)
+			}
+
+			if longURL, ok := doc.Data()["LongURL"].(string); ok {
+				http.Redirect(rw, r, longURL, http.StatusMovedPermanently)
+				break
+
+			} else {
+				log.Default().Print("error while trying to unmarshall")
+			}
 		}
 
-		if err != nil {
-			log.Default().Print(err)
-		}
-
-		if longURL, ok := doc.Data()["longURL"].(string); ok {
-			http.Redirect(rw, r, longURL, http.StatusMovedPermanently)
-			break
-
-		} else {
-			log.Default().Print("error while trying to unmarshall")
-		}
+	default:
+		http.Error(rw, "method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
+
 }
 
 func extractPathParam(path string, route string) string {
