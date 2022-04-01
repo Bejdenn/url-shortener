@@ -10,6 +10,10 @@ import (
 	"google.golang.org/api/iterator"
 )
 
+const (
+	domain = "https://us-central1-platinum-factor-345219.cloudfunctions.net"
+)
+
 var Handler *RedirectHandler
 
 type RedirectHandler struct {
@@ -62,8 +66,8 @@ func (proc *RedirectHandler) Handle(rw http.ResponseWriter, r *http.Request) {
 
 }
 
-func extractPathParam(path string, route string) string {
-	return strings.TrimPrefix(path, route+"/")
+func extractPathParam(address string, route string) string {
+	return strings.TrimPrefix(address, domain+"/"+route+"/")
 }
 
 func Handle(rw http.ResponseWriter, r *http.Request) {
