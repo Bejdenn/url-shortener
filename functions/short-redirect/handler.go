@@ -37,9 +37,9 @@ func init() {
 func (h *RedirectHandler) Handle(rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		fmt.Printf("Registered redirect request for path: %s", r.URL.Path)
+		fmt.Printf("Registered redirect request for path: %s\n", r.URL.Path)
 		id := extractPathParam(r.URL.Path)
-		fmt.Printf("Extracted URL ID from %s: %s", r.URL.Path, id)
+		fmt.Printf("Extracted URL ID from %s: %s\n", r.URL.Path, id)
 
 		iter := handler.database.Collection("urlrelations").Where("Id", "==", id).Documents(context.Background())
 		for {
@@ -47,7 +47,7 @@ func (h *RedirectHandler) Handle(rw http.ResponseWriter, r *http.Request) {
 
 			// if there is no URL with the ID and we redirect to a 404 page
 			if err == iterator.Done {
-				log.Printf("No long URL could be found for ID '%s'", id)
+				log.Printf("No long URL could be found for ID '%s'\n", id)
 				http.Redirect(rw, r, dest404+id, http.StatusMovedPermanently)
 				return
 			}
@@ -57,7 +57,7 @@ func (h *RedirectHandler) Handle(rw http.ResponseWriter, r *http.Request) {
 			}
 
 			if longURL, ok := doc.Data()["LongURL"].(string); ok {
-				fmt.Printf("Redirecting successfully to %s", longURL)
+				fmt.Printf("Redirecting successfully to %s\n", longURL)
 				http.Redirect(rw, r, longURL, http.StatusMovedPermanently)
 				break
 
@@ -74,7 +74,7 @@ func (h *RedirectHandler) Handle(rw http.ResponseWriter, r *http.Request) {
 }
 
 func extractPathParam(address string) string {
-	return strings.TrimPrefix(address, domain+route+"/")
+	return strings.ReplaceAll(address, "/", "")
 }
 
 func Handle(rw http.ResponseWriter, r *http.Request) {

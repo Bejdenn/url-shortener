@@ -7,7 +7,7 @@ import (
 )
 
 func TestHandler(t *testing.T) {
-	source := domain + "/short-redirect/cf687d69"
+	source := "/cf687d69"
 	req := httptest.NewRequest(http.MethodGet, source, http.NoBody)
 	rec := httptest.NewRecorder()
 
@@ -35,7 +35,7 @@ func TestExtractPathParam(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		if param := extractPathParam(domain + "/short-redirect/" + tc); param != tc {
+		if param := extractPathParam("/" + tc); param != tc {
 			t.Errorf("got = %s, want = %s", param, tc)
 		}
 	}
