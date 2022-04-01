@@ -26,4 +26,4 @@ jobs:
       - name: "Deploy Cloud Function"
         working-directory: ./functions
         run: |
-          for d in */; do cd $d; gcloud functions deploy ${d%?} --entry-point "Handle" --runtime go116 --trigger-http; done
+          for d in */; do cd $d; gcloud functions deploy ${d%?} --entry-point "Handle" --runtime go116 --trigger-http; cd ..; done
