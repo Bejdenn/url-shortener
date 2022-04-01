@@ -2,6 +2,7 @@ package shortredirect
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -11,18 +12,18 @@ import (
 )
 
 const (
-	domain = "https://us-central1-platinum-factor-345219.cloudfunctions.net"
-	route  = "/short-redirect"
+	domain  = "https://us-central1-platinum-factor-345219.cloudfunctions.net"
+	route   = "/short-redirect"
+	dest404 = "https://short-url.io/"
 )
 
-var Handler *RedirectHandler
+var handler *RedirectHandler
 
 type RedirectHandler struct {
-	Db *firestore.Client
+	database *firestore.Client
 }
 
 func init() {
-	// Sets your Google Cloud Platform project ID.
 	projectID := "platinum-factor-345219"
 
 	client, err := firestore.NewClient(context.Background(), projectID)
@@ -30,33 +31,38 @@ func init() {
 		log.Fatalf("Failed to create client: %v", err)
 	}
 
-	Handler = &RedirectHandler{Db: client}
+	handler = &RedirectHandler{database: client}
 }
 
-func (proc *RedirectHandler) Handle(rw http.ResponseWriter, r *http.Request) {
+func (h *RedirectHandler) Handle(rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
+		fmt.Printf("Registered redirect request for path: %s", r.URL.Path)
 		id := extractPathParam(r.URL.Path)
-		iter := Handler.Db.Collection("urlrelations").Where("Id", "==", id).Documents(context.Background())
+		fmt.Printf("Extracted URL ID from %s: %s", r.URL.Path, id)
 
+		iter := handler.database.Collection("urlrelations").Where("Id", "==", id).Documents(context.Background())
 		for {
 			doc, err := iter.Next()
 
+			// if there is no URL with the ID and we redirect to a 404 page
 			if err == iterator.Done {
-				http.Redirect(rw, r, "https://short-url.io/"+id, http.StatusMovedPermanently)
-				break
+				log.Printf("No long URL could be found for ID '%s'", id)
+				http.Redirect(rw, r, dest404+id, http.StatusMovedPermanently)
+				return
 			}
 
 			if err != nil {
-				log.Default().Print(err)
+				log.Print(err)
 			}
 
 			if longURL, ok := doc.Data()["LongURL"].(string); ok {
+				fmt.Printf("Redirecting successfully to %s", longURL)
 				http.Redirect(rw, r, longURL, http.StatusMovedPermanently)
 				break
 
 			} else {
-				log.Default().Print("error while trying to unmarshall")
+				log.Print("error while trying to unmarshall")
 			}
 		}
 
@@ -72,5 +78,5 @@ func extractPathParam(address string) string {
 }
 
 func Handle(rw http.ResponseWriter, r *http.Request) {
-	Handler.Handle(rw, r)
+	handler.Handle(rw, r)
 }

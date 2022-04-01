@@ -7,7 +7,8 @@ import (
 )
 
 func TestHandler(t *testing.T) {
-	req := httptest.NewRequest(http.MethodGet, "/short-redirect/cf687d69", http.NoBody)
+	source := domain + "/short-redirect/cf687d69"
+	req := httptest.NewRequest(http.MethodGet, source, http.NoBody)
 	rec := httptest.NewRecorder()
 
 	Handle(rec, req)
@@ -16,6 +17,15 @@ func TestHandler(t *testing.T) {
 
 	if res.StatusCode != http.StatusMovedPermanently {
 		t.Fatalf("got statuscode = %v, want = %v", res.StatusCode, http.StatusMovedPermanently)
+	}
+
+	url, err := res.Location()
+	if err != nil {
+		t.Fatalf("could not get redirect location: %v", err)
+	}
+
+	if url.RawPath != source {
+
 	}
 }
 
