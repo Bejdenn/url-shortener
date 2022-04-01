@@ -1,0 +1,55 @@
+# openapi2-functions.yaml
+swagger: "2.0"
+info:
+  title: api-url-shortener
+  description: URL shortener API with a Cloud Functions backend
+  version: 1.0.0
+schemes:
+  - https
+produces:
+  - application/json
+paths:
+  /short-url:
+    post:
+      summary: Generates shorter URL for the one given and persits it
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - in: formData
+          name: longUrl
+          type: string
+          description: The long URL to redirect to, later.
+      operationId: short-url
+      x-google-backend:
+        address: https://us-central1-platinum-factor-345219.cloudfunctions.net/short-url
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                description: ID that is appended to the short URL.
+              longUrl:
+                type: string
+                description: Original, long URL.
+              shortUrl:
+                type: string
+                description: Generated, shorter URL.
+  /{id}:
+    get:
+      summary: Redirect to long URL associated with the ID.
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: Short URL ID.
+      operationId: short-redirect
+      x-google-backend:
+        address: https://us-central1-platinum-factor-345219.cloudfunctions.net/short-redirect
+        path_translation: APPEND_PATH_TO_ADDRESS
+      responses:
+        301:
+          description: Redirecting to requested page.
