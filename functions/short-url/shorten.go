@@ -42,7 +42,7 @@ func ShortenURL(longURL string) (*URLRelation, error) {
 	}
 
 	rel := &URLRelation{Id: GenerateID(IDLength), LongURL: longURL}
-	rel.ShortURL = "https://" + Domain + "/" + rel.Id
+	rel.ShortURL = Domain + "/" + rel.Id
 
 	return rel, nil
 }

@@ -25,7 +25,7 @@ func init() {
 }
 
 const (
-	Domain            = "short-url.io"
+	Domain            = "https://api-url-shortener-72ey6bex.nw.gateway.dev"
 	IDLength          = 8
 	DefaultCollection = "urlrelations"
 )
