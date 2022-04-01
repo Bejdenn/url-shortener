@@ -1,4 +1,4 @@
-module github.com/Bejdenn/url-shortener/short-redirect
+module github.com/Bejdenn/url-shortener/functions/short-redirect
 
 go 1.18
 
