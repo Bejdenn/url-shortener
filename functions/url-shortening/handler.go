@@ -65,6 +65,8 @@ func (h URLHandler) Handle(db *Database, rw http.ResponseWriter, r *http.Request
 			return
 		}
 
+		rw.Header().Add("Content-Type", "application/json")
+
 		if _, err := fmt.Fprint(rw, string(payload)); err != nil {
 			log.Printf("error while trying to write response: %v", err)
 			http.Error(rw, "error while processing request", http.StatusInternalServerError)
