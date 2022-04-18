@@ -25,6 +25,9 @@ type Database struct {
 func (h URLHandler) Handle(db *Database, rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
+		// Set CORS headers for the main request.
+		rw.Header().Set("Access-Control-Allow-Origin", "*")
+
 		err := r.ParseForm()
 		if err != nil {
 			log.Printf("could not parse request form: %v", err)
@@ -72,6 +75,12 @@ func (h URLHandler) Handle(db *Database, rw http.ResponseWriter, r *http.Request
 			http.Error(rw, "error while processing request", http.StatusInternalServerError)
 			return
 		}
+	case http.MethodOptions:
+		rw.Header().Set("Access-Control-Allow-Methods", "POST")
+		rw.Header().Set("Access-Control-Allow-Origin", "*")
+		rw.Header().Set("Access-Control-Max-Age", "3600")
+		rw.WriteHeader(http.StatusNoContent)
+		return
 
 	default:
 		http.Error(rw, "method is not allowed", http.StatusMethodNotAllowed)

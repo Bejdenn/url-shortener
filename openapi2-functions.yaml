@@ -37,6 +37,13 @@ paths:
               shortUrl:
                 type: string
                 description: Generated, shorter URL.
+    options:
+      operationId: corsUrlShortening
+      x-google-backend:
+        address: https://us-central1-platinum-factor-345219.cloudfunctions.net/url-shortening
+      responses:
+        '200':
+          description: A successful response
   /{id}:
     get:
       summary: Redirect to long URL associated with the ID.
