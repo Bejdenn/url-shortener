@@ -11,39 +11,28 @@ import (
 	"google.golang.org/api/iterator"
 )
 
-const (
-	dest404 = "https://www.google.de/"
-)
-
-var handler *RedirectHandler
+const dest404 = "https://www.google.de/"
 
 type RedirectHandler struct {
-	database *firestore.Client
 }
 
-func init() {
-	projectID := "platinum-factor-345219"
-
-	client, err := firestore.NewClient(context.Background(), projectID)
-	if err != nil {
-		log.Fatalf("Failed to create client: %v", err)
-	}
-
-	handler = &RedirectHandler{database: client}
+type Database struct {
+	Instance         *firestore.Client
+	TargetCollection string
 }
 
-func (h *RedirectHandler) Handle(rw http.ResponseWriter, r *http.Request) {
+func (h *RedirectHandler) Handle(db *Database, rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		fmt.Printf("Registered redirect request for path: %s\n", r.URL.Path)
 		id := extractPathParam(r.URL.Path)
 		fmt.Printf("Extracted URL ID from %s: %s\n", r.URL.Path, id)
 
-		iter := handler.database.Collection("urlrelations").Where("Id", "==", id).Documents(context.Background())
+		iter := db.Instance.Collection(db.TargetCollection).Where("Id", "==", id).Documents(context.Background())
 		for {
 			doc, err := iter.Next()
 
-			// if there is no URL with the ID and we redirect to a 404 page
+			// if there is no URL with the ID, we redirect to a 404 page
 			if err == iterator.Done {
 				log.Printf("No long URL could be found for ID '%s'\n", id)
 				http.Redirect(rw, r, dest404+id, http.StatusMovedPermanently)
@@ -76,5 +65,14 @@ func extractPathParam(address string) string {
 }
 
 func Handle(rw http.ResponseWriter, r *http.Request) {
-	handler.Handle(rw, r)
+	projectID := "platinum-factor-345219"
+
+	client, err := firestore.NewClient(context.Background(), projectID)
+	if err != nil {
+		log.Fatalf("Failed to create client: %v", err)
+	}
+
+	db := &Database{Instance: client, TargetCollection: "url-relations"}
+	h := RedirectHandler{}
+	h.Handle(db, rw, r)
 }

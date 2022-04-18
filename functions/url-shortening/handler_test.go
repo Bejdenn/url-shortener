@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/Bejdenn/url-shortener/functions/short-url/url"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -14,12 +16,33 @@ import (
 	"google.golang.org/api/iterator"
 )
 
-const testCollection = "test-urlrelations"
+const testCollection = "test-url-relations"
+
+var (
+	handler = URLHandler{}
+	db      *Database
+)
 
 func TestMain(m *testing.M) {
-	Proc.TargetCollection = testCollection
+	// Sets your Google Cloud Platform project ID.
+	projectID := "platinum-factor-345219"
+
+	client, err := firestore.NewClient(context.Background(), projectID)
+	if err != nil {
+		log.Fatalf("Failed to create client: %v", err)
+	}
+
+	defer func(client *firestore.Client) {
+		err := client.Close()
+		if err != nil {
+			log.Fatalf("could not close Firestore client")
+		}
+	}(client)
+
+	db = &Database{Instance: client, TargetCollection: testCollection}
+
 	code := m.Run()
-	err := deleteCollection(context.Background(), Proc.Db, Proc.Db.Collection(testCollection), 20)
+	err = deleteCollection(context.Background(), db, 20)
 	if err != nil {
 		panic(err)
 	}
@@ -34,12 +57,15 @@ func TestHandler(t *testing.T) {
 
 	for _, test := range tests {
 		req := httptest.NewRequest(http.MethodPost, "/", http.NoBody)
-		req.ParseForm()
+		err := req.ParseForm()
+		if err != nil {
+			t.Fatalf("could not parse request form: %v", err)
+		}
 		req.PostForm.Add("longUrl", test)
 
 		rec := httptest.NewRecorder()
 
-		Handle(rec, req)
+		handler.Handle(db, rec, req)
 
 		res := rec.Result()
 		body, _ := io.ReadAll(res.Body)
@@ -48,8 +74,8 @@ func TestHandler(t *testing.T) {
 			t.Fatalf("response contained error: %v", errors.New(string(body)))
 		}
 
-		rel := &URLRelation{}
-		err := json.Unmarshal(body, rel)
+		rel := &url.Relation{}
+		err = json.Unmarshal(body, rel)
 		if err != nil {
 			t.Fatalf("error while unmarshalling response body: %v", err)
 		}
@@ -60,7 +86,7 @@ func TestHandler(t *testing.T) {
 	}
 
 	size := 0
-	iter := Proc.Db.Collection(testCollection).Documents(context.Background())
+	iter := db.Instance.Collection(testCollection).Documents(context.Background())
 	for {
 		_, err := iter.Next()
 		if err == iterator.Done {
@@ -83,7 +109,7 @@ func TestHandlerFalseHTTPMethod(t *testing.T) {
 	req := httptest.NewRequest(http.MethodDelete, "/?longUrl=http://example.com", http.NoBody)
 	rec := httptest.NewRecorder()
 
-	Handle(rec, req)
+	handler.Handle(db, rec, req)
 
 	res := rec.Result()
 
@@ -96,7 +122,7 @@ func TestHandlerNoURLToProcess(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/", http.NoBody)
 	rec := httptest.NewRecorder()
 
-	Handle(rec, req)
+	handler.Handle(db, rec, req)
 
 	res := rec.Result()
 
@@ -105,7 +131,24 @@ func TestHandlerNoURLToProcess(t *testing.T) {
 	}
 }
 
-func deleteCollection(ctx context.Context, client *firestore.Client, ref *firestore.CollectionRef, batchSize int) error {
+func TestShortURLAlreadyExists(t *testing.T) {
+	rel, err := url.ShortenURL("https://www.example.com")
+	if err != nil {
+		t.Fatalf("error occured while shortening URL: %v", err)
+	}
+
+	_, err = db.Instance.Collection(testCollection).Doc(rel.Id).Set(context.Background(), rel)
+	if err != nil {
+		t.Fatalf("error occured while persisting relation: %v", err)
+	}
+
+	if exists := handler.Exists(db, rel); !exists {
+		t.Errorf("ShortURLExists(%v) = %v, expected = %v", rel, exists, true)
+	}
+}
+
+func deleteCollection(ctx context.Context, db *Database, batchSize int) error {
+	ref := db.Instance.Collection(db.TargetCollection)
 
 	for {
 		// Get a batch of documents
@@ -115,7 +158,7 @@ func deleteCollection(ctx context.Context, client *firestore.Client, ref *firest
 		// Iterate through the documents, adding
 		// a delete operation for each one to a
 		// WriteBatch.
-		batch := client.Batch()
+		batch := db.Instance.Batch()
 		for {
 			doc, err := iter.Next()
 			if err == iterator.Done {

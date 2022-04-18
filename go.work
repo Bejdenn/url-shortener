@@ -2,6 +2,6 @@ go 1.18
 
 use (
 	.
-	./functions/short-redirect
-	./functions/short-url
+	./functions/redirect
+	./functions/url-shortening
 )
