@@ -9,19 +9,19 @@ schemes:
 produces:
   - application/json
 paths:
-  /short-url:
+  /url-shortening:
     post:
-      summary: Generates shorter URL for the one given and persits it
+      summary: Generates a shorter URL for the one given and persists it
       consumes:
         - application/x-www-form-urlencoded
       parameters:
         - in: formData
           name: longUrl
           type: string
-          description: The long URL to redirect to, later.
-      operationId: short-url
+          description: The long URL to redirect to, eventually.
+      operationId: url-shortening
       x-google-backend:
-        address: https://us-central1-platinum-factor-345219.cloudfunctions.net/short-url
+        address: https://us-central1-platinum-factor-345219.cloudfunctions.net/url-shortening
       responses:
         200:
           description: OK
@@ -46,9 +46,9 @@ paths:
           type: string
           required: true
           description: Short URL ID.
-      operationId: short-redirect
+      operationId: redirect
       x-google-backend:
-        address: https://us-central1-platinum-factor-345219.cloudfunctions.net/short-redirect
+        address: https://us-central1-platinum-factor-345219.cloudfunctions.net/redirect
         path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         301:
