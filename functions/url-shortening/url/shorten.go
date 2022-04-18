@@ -10,7 +10,7 @@ import (
 
 const (
 	idLength = 8
-	domain   = "https://api-url-shortener-72ey6bex.nw.gateway.dev"
+	domain   = "https://api-72ey6bex.nw.gateway.dev"
 )
 
 type InvalidURLError struct {
