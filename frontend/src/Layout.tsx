@@ -8,7 +8,7 @@ const Layout = ({ children }: { children: ReactChild[] }) => {
         <Box
           sx={{
             paddingTop: '6rem',
-            maxWidth: 'xl'
+            maxWidth: 'md'
           }}
         >{children}</Box>
       </Box>
