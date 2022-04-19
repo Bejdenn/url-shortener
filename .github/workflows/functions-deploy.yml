@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - "functions/**"
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   deploy:
@@ -20,7 +20,7 @@ jobs:
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v0"
 
-      # every sub-directory of the 'functions' directory stands for a single Cloud Function.
+      # every subdirectory of the 'functions' directory stands for a single Cloud Function.
       # this step iterates over every available directory and deploys it. The name of the Cloud Function
       # will be the same as its folder name.
       - name: "Deploy Cloud Function"
