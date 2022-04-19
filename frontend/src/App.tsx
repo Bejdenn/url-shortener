@@ -1,10 +1,13 @@
 import LoadingButton from '@mui/lab/LoadingButton';
-import { Box, Input, Stack, SxProps, Theme, Typography } from '@mui/material';
+import { Input, Stack, SxProps, Theme, Typography } from '@mui/material';
 import { useState } from 'react';
 import './App.css';
 import History from './History';
 import { URLRelation } from './types';
-import useLocalStorage from './useLocalStorage';
+import useLocalStorage from './hooks/useLocalStorage';
+import 'react-toastify/dist/ReactToastify.min.css';
+import { toast, ToastContainer } from 'react-toastify';
+import Layout from './Layout';
 
 const API_URL = 'https://api-72ey6bex.nw.gateway.dev';
 
@@ -19,7 +22,17 @@ const App = () => {
     });
 
     if (response.status !== 200) {
-      throw new Error('error in response: ' + await response.text());
+      toast.error('An error has occurred. Please try again.', {
+        position: 'top-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined
+      });
+
+      throw new Error(await response.text());
     }
 
     const relation = await response.json() as URLRelation;
@@ -31,37 +44,28 @@ const App = () => {
   const fontStyle: SxProps<Theme> = { fontWeight: 'bold', color: 'white' };
 
   return (
-    <Box sx={{ paddingTop: 4, paddingLeft: 2, paddingRight: 2 }}>
-      <Box display={'flex'} justifyContent='center' alignItems='center'>
-        <Box
-          sx={{
-            paddingTop: '6rem',
-            maxWidth: 'xl'
-          }}
+    <Layout>
+      <Stack spacing={4}>
+        <Typography sx={{ ...fontStyle }} variant={fontVariant}>
+          Shorten your link 🔗
+        </Typography>
+        <Input
+          value={urlToSubmit}
+          sx={{ color: 'white' }}
+          placeholder='URL address'
+          onChange={(e) => setUrlToSubmit(e.target.value)}
+        />
+        <LoadingButton
+          disabled={urlToSubmit.length === 0}
+          variant='contained'
+          onClick={getShortUrl}
         >
-          <Stack spacing={4}>
-            <Typography sx={{ ...fontStyle }} variant={fontVariant}>
-              Shorten your link 🔗
-            </Typography>
-            <Input
-              value={urlToSubmit}
-              sx={{ color: 'white' }}
-              placeholder='URL address'
-              onChange={(e) => setUrlToSubmit(e.target.value)}
-            />
-            <LoadingButton
-              disabled={urlToSubmit.length === 0}
-              variant='contained'
-              onClick={getShortUrl}
-            >
-              Shorten
-            </LoadingButton>
-            <History entries={history} />
-          </Stack>
-        </Box>
-      </Box>
-    </Box>
-  );
+          Shorten
+        </LoadingButton>
+        <History entries={history} />
+      </Stack>
+      <ToastContainer />;
+    </Layout>);
 };
 
 export default App;
