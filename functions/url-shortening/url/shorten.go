@@ -23,9 +23,10 @@ func (e InvalidURLError) Error() string {
 }
 
 type Relation struct {
-	Id       string `json:"id"`
-	ShortURL string `json:"shortUrl"`
-	LongURL  string `json:"longUrl"`
+	Id         string `json:"id"`
+	ShortURL   string `json:"shortUrl"`
+	LongURL    string `json:"longUrl"`
+	MainDomain string `json:"mainDomain"`
 }
 
 // ShortenURL generates a shorter URL for a given long URL and embeds
@@ -35,11 +36,16 @@ type Relation struct {
 //
 // There will be no check whether some ID is already in use.
 func ShortenURL(longURL string) (*Relation, error) {
-	if valid, err := isValidURL(longURL); !valid {
+	var (
+		u   *url.URL
+		err error
+	)
+
+	if u, err = isValidURL(longURL); u == nil {
 		return nil, InvalidURLError{url: longURL, err: err}
 	}
 
-	rel := &Relation{Id: GenerateID(idLength), LongURL: longURL}
+	rel := &Relation{Id: GenerateID(idLength), LongURL: longURL, MainDomain: u.Hostname()}
 	rel.ShortURL = domain + "/" + rel.Id
 
 	return rel, nil
@@ -50,7 +56,8 @@ func ShortenURL(longURL string) (*Relation, error) {
 // two dots has to be at least one character long.
 var dotSeparated = regexp.MustCompile("^(?:\\w+\\.)+\\w+(/\\w+)*$")
 
-// isValidURL tries to validate, if a given address string is a valid URL.
+// isValidURL tries to validate, if a given address string is a valid URL and return
+// the instance of url.URL that was created from parsing.
 //
 // 'valid' in this case, means:
 //
@@ -59,9 +66,9 @@ var dotSeparated = regexp.MustCompile("^(?:\\w+\\.)+\\w+(/\\w+)*$")
 // - the only allowed non-letter character in the address is a dot
 //
 // - sub-routes are allowed (e.g. ...something.com/sub)
-func isValidURL(address string) (bool, error) {
+func isValidURL(address string) (u *url.URL, err error) {
 	// try parsing once to filter out the common invalid URLs
-	if _, err := url.ParseRequestURI(address); err != nil {
+	if u, err = url.ParseRequestURI(address); err != nil {
 		isProtocolMissing := dotSeparated.Match([]byte(address))
 
 		// if only the protocol is missing from the address, we append
@@ -70,12 +77,12 @@ func isValidURL(address string) (bool, error) {
 			address = "http://" + address
 		}
 
-		if _, err := url.ParseRequestURI(address); err != nil {
-			return false, err
+		if u, err = url.ParseRequestURI(address); err != nil {
+			return nil, err
 		}
 	}
 
-	return true, nil
+	return
 }
 
 // GenerateID generates a random string that contains letters and digits.

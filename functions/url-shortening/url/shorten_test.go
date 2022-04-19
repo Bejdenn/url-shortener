@@ -9,18 +9,27 @@ import (
 var urlRegex = regexp.MustCompile("^" + regexp.QuoteMeta(domain) + "\\/\\w{8}$")
 
 func TestShortenValidURLs(t *testing.T) {
-	tests := []string{
-		"https://www.example.com", "www.example.com", "google.de",
+	tests := []struct {
+		url    string
+		domain string
+	}{
+		{url: "https://www.example.com", domain: "www.example.com"},
+		{url: "www.example.com", domain: "www.example.com"},
+		{url: "google.de", domain: "google.de"},
 	}
 
 	for _, tc := range tests {
-		rel, err := ShortenURL(tc)
+		rel, err := ShortenURL(tc.url)
 		if err != nil {
 			t.Fatalf("error while shortening URL: %v", err)
 		}
 
 		if !urlRegex.Match([]byte(rel.ShortURL)) {
 			t.Errorf("expected a short URL with schema %s, but got %s", urlRegex.String(), rel.ShortURL)
+		}
+
+		if rel.MainDomain != tc.domain {
+			t.Errorf("ShortenURL: got %s, wanted: %s", rel.MainDomain, tc.domain)
 		}
 	}
 }
