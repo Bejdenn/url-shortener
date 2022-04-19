@@ -4,12 +4,13 @@ import { useState } from 'react';
 import './App.css';
 import History from './History';
 import { URLRelation } from './types';
+import useLocalStorage from './useLocalStorage';
 
 const API_URL = 'https://api-72ey6bex.nw.gateway.dev';
 
 const App = () => {
   const [urlToSubmit, setUrlToSubmit] = useState('');
-  const [history, setHistory] = useState<URLRelation[]>([]);
+  const [history, setHistory] = useLocalStorage<URLRelation[]>('urls', []);
 
   const getShortUrl = async () => {
     const response = await fetch(API_URL + '/url-shortening', {
