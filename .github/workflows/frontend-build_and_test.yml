@@ -23,6 +23,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
+          working-directory: ./frontend
       - run: yarn install
       - run: yarn test
 
@@ -41,7 +42,7 @@ jobs:
         uses: "google-github-actions/setup-gcloud@v0"
 
       - name: "Build container image"
-        working-directory: ./functions
+        working-directory: ./frontend
         run: "gcloud builds submit --tag gcr.io/platinum-factor-345219/url-shortener-frontend"
 
       - name: "Deploy to Cloud Run"
