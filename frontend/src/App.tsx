@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import { toast, ToastContainer } from 'react-toastify';
 import Layout from './Layout';
 
+
 const API_URL = 'https://api-72ey6bex.nw.gateway.dev';
 
 const App = () => {
