@@ -12,8 +12,10 @@ const App = () => {
   const [history, setHistory] = useState<URLRelation[]>([]);
 
   const getShortUrl = async () => {
-    const payload = { longUrl: urlToSubmit };
-    const response = await fetch(API_URL + '/url-shortening', { method: 'POST', body: new URLSearchParams(payload) });
+    const response = await fetch(API_URL + '/url-shortening', {
+      method: 'POST',
+      body: new URLSearchParams({ longUrl: urlToSubmit })
+    });
 
     if (response.status !== 200) {
       throw new Error('error in response: ' + await response.text());
@@ -33,7 +35,7 @@ const App = () => {
         <Box
           sx={{
             paddingTop: '6rem',
-            maxWidth: '50%'
+            maxWidth: 'xl'
           }}
         >
           <Stack spacing={4}>
@@ -49,7 +51,7 @@ const App = () => {
             <LoadingButton
               disabled={urlToSubmit.length === 0}
               variant='contained'
-              onClick={() => getShortUrl()}
+              onClick={getShortUrl}
             >
               Shorten
             </LoadingButton>
