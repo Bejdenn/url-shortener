@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="url-shortener" />
+    <working_directory value="$PROJECT_DIR$" />
+    <envs>
+      <env name="GOOGLE_APPLICATION_CREDENTIALS" value="$PROJECT_DIR$/credentials.json" />
+    </envs>
+    <kind value="PACKAGE" />
+    <package value="github.com/Bejdenn/url-shortener" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$" />
+    <method v="2" />
+  </configuration>
+</component>
