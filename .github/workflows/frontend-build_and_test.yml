@@ -11,6 +11,9 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: 'frontend'
 
     strategy:
       matrix:
@@ -23,12 +26,15 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
-          working-directory: ./frontend
+          cache-dependency-path: '**/yarn.lock'
       - run: yarn install
       - run: yarn test
 
   Deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: 'frontend'
 
     steps:
       - uses: actions/checkout@v2
@@ -42,9 +48,7 @@ jobs:
         uses: "google-github-actions/setup-gcloud@v0"
 
       - name: "Build container image"
-        working-directory: ./frontend
         run: "gcloud builds submit --tag gcr.io/platinum-factor-345219/url-shortener-frontend"
 
       - name: "Deploy to Cloud Run"
-        working-directory: ./frontend
         run: "gcloud run deploy --image gcr.io/platinum-factor-345219/url-shortener-frontend --platform managed --region=europe-west3"
