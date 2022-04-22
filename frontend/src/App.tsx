@@ -9,7 +9,12 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import { toast, ToastContainer } from 'react-toastify';
 import Layout from './Layout';
 
-const API_URL = 'https://api-72ey6bex.nw.gateway.dev';
+export let API_URL: string;
+if (process.env.NODE_ENV === 'production') {
+  API_URL = 'https://api-72ey6bex.nw.gateway.dev';
+} else {
+  API_URL = 'http://127.0.0.1:8080';
+}
 
 const App = () => {
   const [urlToSubmit, setUrlToSubmit] = useState('');
@@ -62,7 +67,7 @@ const App = () => {
         >
           Shorten
         </LoadingButton>
-        <History entries={history} />
+        <History isDev={process.env.NODE_ENV !== 'production'} entries={history} />
       </Stack>
       <ToastContainer />
     </Layout>);
