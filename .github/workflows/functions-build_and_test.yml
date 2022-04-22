@@ -5,7 +5,7 @@ on:
     paths:
       - "functions/**"
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   Build:
@@ -18,13 +18,13 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v2
-        
+
       # some tests need access to Google Cloud Resources, e.g. Firestore
       - id: "auth"
         uses: "google-github-actions/auth@v0"
         with:
           credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
-          
+
       - name: Cache Go modules
         uses: actions/cache@v2
         with:
@@ -37,7 +37,7 @@ jobs:
       - name: Build code
         working-directory: ./functions
         run: |
-          rm go.work
+          find . -name go.work -execdir sh -c 'rm go.work' \
           ROOT_DIR=$(pwd) \
           find . -name go.mod -execdir sh -c 'go build -v ./... || touch $ROOT_DIR/build_failed.txt' \; ; \
           test ! -f build_failed.txt

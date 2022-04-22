@@ -75,7 +75,6 @@ var dotSeparated = regexp.MustCompile("^(?:\\w+\\.)+\\w+(/\\w+)*$")
 //
 // - sub-routes are allowed (e.g. ...something.com/sub)
 func isValidURL(address string) (u *url.URL, err error) {
-	// try parsing once to filter out the common invalid URLs
 	if u, err = url.ParseRequestURI(address); err != nil {
 		return nil, err
 	}
