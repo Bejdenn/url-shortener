@@ -47,11 +47,7 @@ func (h URLHandler) Handle(db *Database, rw http.ResponseWriter, r *http.Request
 		}
 
 		for h.Exists(db, rel) {
-			rel, err = url.ShortenURL(longURL)
-			if err != nil {
-				http.Error(rw, err.Error(), http.StatusBadRequest)
-				return
-			}
+			rel, _ = url.ShortenURL(longURL)
 		}
 
 		_, err = db.Instance.Collection(db.TargetCollection).Doc(rel.Id).Set(context.Background(), rel)
