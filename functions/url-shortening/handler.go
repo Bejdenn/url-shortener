@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Bejdenn/url-shortener/functions/short-url/url"
+	"github.com/Bejdenn/url-shortener/functions/url-shortening/url"
 	"google.golang.org/api/iterator"
 	"log"
 	"net/http"
