@@ -41,6 +41,14 @@ func ShortenURL(longURL string) (*Relation, error) {
 		err error
 	)
 
+	isProtocolMissing := dotSeparated.Match([]byte(longURL))
+
+	// if only the protocol is missing from the address, we append
+	// the HTTP protocol string as a fallback
+	if isProtocolMissing {
+		longURL = "http://" + longURL
+	}
+
 	if u, err = isValidURL(longURL); u == nil {
 		return nil, InvalidURLError{url: longURL, err: err}
 	}
@@ -61,25 +69,15 @@ var dotSeparated = regexp.MustCompile("^(?:\\w+\\.)+\\w+(/\\w+)*$")
 //
 // 'valid' in this case, means:
 //
-// - there has to be a protocol defined in the beginning of the string ('https://' or 'http://')
+// - there has to be a protocol defined at the beginning of the string ('https://' or 'http://')
 //
-// - the only allowed non-letter character in the address is a dot
+// - the only allowed non-letter characters in the address are dots (.) and slashes (/)
 //
 // - sub-routes are allowed (e.g. ...something.com/sub)
 func isValidURL(address string) (u *url.URL, err error) {
 	// try parsing once to filter out the common invalid URLs
 	if u, err = url.ParseRequestURI(address); err != nil {
-		isProtocolMissing := dotSeparated.Match([]byte(address))
-
-		// if only the protocol is missing from the address, we append
-		// the HTTP protocol string as a fallback and retry
-		if isProtocolMissing {
-			address = "http://" + address
-		}
-
-		if u, err = url.ParseRequestURI(address); err != nil {
-			return nil, err
-		}
+		return nil, err
 	}
 
 	return
