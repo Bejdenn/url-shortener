@@ -16,17 +16,39 @@ if (process.env.NODE_ENV === 'production') {
   API_URL = 'http://127.0.0.1:8080';
 }
 
-const App = () => {
+function App () {
+  const [isLoading, setIsLoading] = useState(false);
   const [urlToSubmit, setUrlToSubmit] = useState('');
   const [history, setHistory] = useLocalStorage<URLRelation[]>('urls', []);
 
   const getShortUrl = async () => {
+    setIsLoading(true);
+
     const response = await fetch(API_URL + '/url-shortening', {
       method: 'POST',
       body: new URLSearchParams({ longUrl: urlToSubmit })
     });
 
-    if (response.status !== 200) {
+    setIsLoading(false);
+
+    if (response.status === 200) {
+      const relation = await response.json() as URLRelation;
+      setHistory([relation, ...history]);
+      setUrlToSubmit('');
+
+    } else if (response.status === 400) {
+      toast.error('Your URL is not valid.', {
+        position: 'top-center',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined
+      });
+      throw new Error(await response.text());
+
+    } else {
       toast.error('An error has occurred. Please try again.', {
         position: 'top-center',
         autoClose: 5000,
@@ -36,13 +58,8 @@ const App = () => {
         draggable: true,
         progress: undefined
       });
-
       throw new Error(await response.text());
     }
-
-    const relation = await response.json() as URLRelation;
-    setHistory([relation, ...history]);
-    setUrlToSubmit('');
   };
 
   const fontVariant = 'h4';
@@ -57,20 +74,21 @@ const App = () => {
         <Input
           value={urlToSubmit}
           sx={{ color: 'white' }}
-          placeholder='URL address'
+          placeholder="URL address"
           onChange={(e) => setUrlToSubmit(e.target.value)}
         />
         <LoadingButton
           disabled={urlToSubmit.length === 0}
-          variant='contained'
+          variant="contained"
+          loading={isLoading}
           onClick={getShortUrl}
         >
           Shorten
         </LoadingButton>
-        <History isDev={process.env.NODE_ENV !== 'production'} entries={history} />
+        <History isDev={process.env.NODE_ENV !== 'production'} entries={history}/>
       </Stack>
-      <ToastContainer />
+      <ToastContainer/>
     </Layout>);
-};
+}
 
 export default App;
