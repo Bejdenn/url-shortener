@@ -1,8 +1,8 @@
 package main
 
 import (
-	redirect "github.com/Bejdenn/url-shortener/functions/short-redirect"
-	shorturl "github.com/Bejdenn/url-shortener/functions/short-url"
+	"github.com/Bejdenn/url-shortener/functions/redirect"
+	shorturl "github.com/Bejdenn/url-shortener/functions/url-shortening"
 	"log"
 	"net/http"
 )
