@@ -37,6 +37,7 @@ jobs:
       - name: Build code
         working-directory: ./functions
         run: |
+          rm go.work
           ROOT_DIR=$(pwd) \
           find . -name go.mod -execdir sh -c 'go build -v ./... || touch $ROOT_DIR/build_failed.txt' \; ; \
           test ! -f build_failed.txt
