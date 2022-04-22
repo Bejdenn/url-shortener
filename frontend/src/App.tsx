@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'production') {
   API_URL = 'http://127.0.0.1:8080';
 }
 
-function App () {
+function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [urlToSubmit, setUrlToSubmit] = useState('');
   const [history, setHistory] = useLocalStorage<URLRelation[]>('urls', []);
@@ -71,23 +71,25 @@ function App () {
         <Typography sx={{ ...fontStyle }} variant={fontVariant}>
           Shorten your link 🔗
         </Typography>
-        <Input
-          value={urlToSubmit}
-          sx={{ color: 'white' }}
-          placeholder="URL address"
-          onChange={(e) => setUrlToSubmit(e.target.value)}
-        />
-        <LoadingButton
-          disabled={urlToSubmit.length === 0}
-          variant="contained"
-          loading={isLoading}
-          onClick={getShortUrl}
-        >
-          Shorten
-        </LoadingButton>
-        <History isDev={process.env.NODE_ENV !== 'production'} entries={history}/>
+        <Stack direction={'row'} justifyContent={'space-between'} spacing={2}>
+          <Input
+            value={urlToSubmit}
+            sx={{ color: 'white', width: '75%' }}
+            placeholder='URL address'
+            onChange={(e) => setUrlToSubmit(e.target.value)}
+          />
+          <LoadingButton
+            disabled={urlToSubmit.length === 0}
+            variant='contained'
+            loading={isLoading}
+            onClick={getShortUrl}
+          >
+            Shorten
+          </LoadingButton>
+        </Stack>
+        <History isDev={process.env.NODE_ENV !== 'production'} entries={history} />
       </Stack>
-      <ToastContainer/>
+      <ToastContainer />
     </Layout>);
 }
 
