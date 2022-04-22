@@ -1,4 +1,4 @@
-package shortredirect
+package redirect
 
 import (
 	"cloud.google.com/go/firestore"
@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	handler = RedirectHandler{}
+	handler = Handler{}
 	db      *Database
 )
 

@@ -1,19 +1,30 @@
-package shortredirect
+package redirect
 
 import (
+	"cloud.google.com/go/firestore"
 	"context"
-	"fmt"
+	"google.golang.org/api/iterator"
+	"html/template"
 	"log"
 	"net/http"
 	"strings"
-
-	"cloud.google.com/go/firestore"
-	"google.golang.org/api/iterator"
 )
 
-const dest404 = "https://www.google.de/"
+var dest404 = `<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <title>Page not found</title>
+</head>
+<body>
+<h1>404 - page not found</h1>
+<p>This is a 404 error, which means you've clicked on a bad link or entered an invalid URL.</p>
+</body>
+</html>`
 
-type RedirectHandler struct {
+var template404 = template.Must(template.New("certificate_template").Parse(dest404))
+
+type Handler struct {
 }
 
 type Database struct {
@@ -21,21 +32,27 @@ type Database struct {
 	TargetCollection string
 }
 
-func (h *RedirectHandler) Handle(db *Database, rw http.ResponseWriter, r *http.Request) {
+func (h *Handler) Handle(db *Database, rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		fmt.Printf("Registered redirect request for path: %s\n", r.URL.Path)
+		log.Printf("Registered redirect request for path: %s\n", r.URL.Path)
 		id := extractPathParam(r.URL.Path)
-		fmt.Printf("Extracted URL ID from %s: %s\n", r.URL.Path, id)
+		log.Printf("Extracted URL ID from %s: %s\n", r.URL.Path, id)
 
 		iter := db.Instance.Collection(db.TargetCollection).Where("Id", "==", id).Documents(context.Background())
 		for {
 			doc, err := iter.Next()
 
-			// if there is no URL with the ID, we redirect to a 404 page
+			// if there is no URL with the ID, we show a 404 page
 			if err == iterator.Done {
 				log.Printf("No long URL could be found for ID '%s'\n", id)
-				http.Redirect(rw, r, dest404+id, http.StatusMovedPermanently)
+				err := template404.Execute(rw, nil)
+				if err != nil {
+					log.Printf("error: could not execute HTML template: %v", err)
+					return
+				}
+
+				rw.WriteHeader(http.StatusNotFound)
 				return
 			}
 
@@ -44,7 +61,7 @@ func (h *RedirectHandler) Handle(db *Database, rw http.ResponseWriter, r *http.R
 			}
 
 			if longURL, ok := doc.Data()["LongURL"].(string); ok {
-				fmt.Printf("Redirecting successfully to %s\n", longURL)
+				log.Printf("Redirecting successfully to %s\n", longURL)
 				http.Redirect(rw, r, longURL, http.StatusMovedPermanently)
 				break
 
@@ -73,6 +90,6 @@ func Handle(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	db := &Database{Instance: client, TargetCollection: "url-relations"}
-	h := RedirectHandler{}
+	h := Handler{}
 	h.Handle(db, rw, r)
 }
