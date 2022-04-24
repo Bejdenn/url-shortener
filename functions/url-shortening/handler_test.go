@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/Bejdenn/url-shortener/functions/short-url/url"
+	"github.com/Bejdenn/url-shortener/functions/url-shortening/url"
 	"io"
 	"log"
 	"net/http"
