@@ -69,13 +69,13 @@ function App() {
     <Layout>
       <Stack spacing={4}>
         <Typography sx={{ ...fontStyle }} variant={fontVariant}>
-          Shorten your link 🔗
+          Shorten your URL 🔗
         </Typography>
         <Stack direction={'row'} justifyContent={'space-between'} spacing={2}>
           <Input
             value={urlToSubmit}
             sx={{ color: 'white', width: '75%' }}
-            placeholder='URL address'
+            placeholder='Insert your URL here...'
             onChange={(e) => setUrlToSubmit(e.target.value)}
           />
           <LoadingButton
